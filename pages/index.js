@@ -1,6 +1,7 @@
 import React from 'react';
 import MainGrid from '../src/components/MainGrid/'
 import Box from '../src/components/Box';
+import { communities } from '../src/components/Comunidades';
 import {AlurakutMenu, AlurakutProfileSidebarMenuDefault , OrkutNostalgicIconSet} from '../src/lib/alurakutCommons'
 import {ProfileRelationsBoxWrapper} from '../src/components/profileRelations';
 
@@ -23,11 +24,7 @@ function ProfileSidebar(propriedades) {
 
 export default function Home() {
   const usuarioAleatorio = "Gui-guimaraes";
-  const [comunidades, setComunidades] = React.useState([{
-    id: '15334848641056686652676682',
-    title: `Eu odeio acordar cedo`,
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-  }]);
+  const [comunidades, setComunidades] = React.useState(communities);
   const pessoasFavoritas = [
     'juunegreiros',
     'omariosouto',
@@ -49,6 +46,30 @@ export default function Home() {
               <form onSubmit={function handleCreateCommunity(e) {
                 e.preventDefault(e)
 
+
+              }}>
+                <div>
+                  <img src={`https://github.com/${usuarioAleatorio}.png`} style={{borderRadius: '50%', width: '50px', marginRight: 'auto', marginBottom: '8px'}} />
+                   <h1 style={{fontSize: '30px', textAlign: 'center',}} className="title">Bem vindo(a), {usuarioAleatorio}</h1>
+                </div>
+                <div>
+                <input 
+                placeholder="Começar Publicação"
+                name="Começar Publicação"
+                />
+                 <button  style={{width: '100%', display: 'block', marginTop: '-8px', padding: '12px', background: '#F4F4F4', border: 0, color: '#333333'}}>
+                    Enviar
+                  </button>
+                  <hr />
+                  <OrkutNostalgicIconSet />
+                </div>
+              </form>
+            </Box>
+            
+            <Box>
+              <form onSubmit={function handleCreateCommunity(e) {
+                e.preventDefault(e)
+
                 const dadosDoForm = new FormData(e.target);
 
                 const comunidade = {
@@ -57,22 +78,18 @@ export default function Home() {
                   image: dadosDoForm.get('image')
                 }
 
-                const comunidadesAtualizadas = [...comunidades, 'AluraStars'];
+                const comunidadesAtualizadas = [...comunidades, 'AlurStars'];
                 setComunidades(comunidadesAtualizadas);
               }}>
-                <div>
-                <img src={`https://github.com/${usuarioAleatorio}.png`} style={{borderRadius: '50%', width: '40px', marginRight: 'auto'}} />
-                </div>
-                <div className="createPub">
-                  <button id="myBtn" style={{width: '100%', display: 'block', marginTop: '-40px', padding: '12px', background: '#F4F4F4', border: 0, color: '#333333'}}>
-                    Começar Publicação
-                  </button>
-                  <hr />
-                  <OrkutNostalgicIconSet />
-                </div>
+                <input 
+                  placeholder="Criar Comunidade"
+                  name="Criar Comunidade"
+                />
+                <button style={{width: '100%', display: 'block', marginTop: '-8px', padding: '12px', background: '#F4F4F4', border: 0, color: '#333333'}}>
+                  Enviar
+                </button>
               </form>
             </Box>
-            <hr />
           </div>
           <div className="profileRelations" style={{gridArea: 'profileRelationsArea'}}>
             <ProfileRelationsBoxWrapper>
