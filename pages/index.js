@@ -49,7 +49,7 @@ function ProfileRelationsBox(prop) {
 
 export default function Home() {
   const usuarioAleatorio = "Gui-guimaraes";
-  const [comunidades, setComunidades] = React.useState(communities);
+  const [comunidades, setComunidades] = React.useState([]);
   const pessoasFavoritas = [
     'juunegreiros',
     'omariosouto',
@@ -61,21 +61,49 @@ export default function Home() {
 
   const [seguidores, setSeguidores] = React.useState([]);
   const [seguindo, setSeguindo] = React.useState([]);
+  const token = '3c27efc28ae1ee950bcbf361f120e6';
   React.useEffect(function () {
-    fetch(`https://api.github.com/users/Gui-guimaraes/followers`)
-      .then(function(respostaDoServidor) {
-        return respostaDoServidor.json();
+    fetch('https://api.github.com/users/Gui-guimaraes/followers')
+      .then(function(res) {
+        return res.json();
       }) 
-      .then(function(respostaCompleta) {
-        setSeguidores(respostaCompleta);
+      .then(function(result) {
+        setSeguidores(result);
       })
-    fetch (`https://api.github.com/users/Gui-guimaraes/following`)
-      .then(function(respostaDoServidor) {
-        return respostaDoServidor.json();
+    fetch ('https://api.github.com/users/Gui-guimaraes/following')
+      .then(function(res) {
+        return res.json();
       })
-      .then(function(respostaCompleta) {
-        setSeguindo(respostaCompleta);
+      .then(function(result) {
+        setSeguindo(result);
       })
+    fetch (
+      'https://graphql.datocms.com/', 
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({"query": `query {
+          allCommunities {
+            id
+            title
+            imageUrl
+            creatorSlug
+          }
+        }`})
+    })
+    .then((res) => res.json())
+    .then ((result) => {
+      const comunidadesDato = result.data.allCommunities;
+      console.log(comunidades)
+      setComunidades(comunidadesDato)
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   }, [])
 
 
@@ -118,26 +146,40 @@ export default function Home() {
                 const dadosDoForm = new FormData(e.target);
 
                 const comunidade = {
-                  id: new Date().toISOString,
                   title: dadosDoForm.get('title'),
-                  image: dadosDoForm.get('image'),
-                  link: dadosDoForm.get('link')
+                  imageUrl: dadosDoForm.get('image'),
+                  creatoSlug: usuarioAleatorio,
+                  
                 }
 
-                const comunidadesAtualizadas = [...comunidades, comunidade];
-                setComunidades(comunidadesAtualizadas);
+                fetch
+                ('/api/comunidades', 
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(comunidade)
+                })
+                .then(async (response) => {
+                  const dados = await response.json();
+                  const comunidade = dados.regristoCriado;
+                  const comunidadesAtualizadas = [...comunidades, comunidade];
+                  setComunidades(comunidadesAtualizadas);
+                })
+
               }}>
                 <input 
                   placeholder="Criar Comunidade"
                   name="Criar Comunidade"
                   aria-label="Criar Comunidade"
-                  autoComplete="off"
+
                 />
                 <input 
                 placeholder="Coloque um url para capa da comunidade"
-                name="imagee"
+                name="image"
                 aria-label="Coloque um url para capa da comunidade"
-                autoComplete="off"
+
                 />
                 <button style={{width: '100%', display: 'block', marginTop: '-8px', padding: '12px', background: '#F4F4F4', border: 0, color: '#333333'}}>
                   Enviar
@@ -146,7 +188,7 @@ export default function Home() {
             </Box>
           </div>
           <div className="profileRelations" style={{gridArea: 'profileRelationsArea'}}>
-            <ProfileRelationsBox title="Seguidores" items={seguidores} />
+            <ProfileRelationsBox title="Seguindo" items={seguindo} />
             <ProfileRelationsBoxWrapper>
               <h2 className="smallTitle">
                 Pessoas da comunidade ({pessoasFavoritas.length})
@@ -177,8 +219,8 @@ export default function Home() {
 
                   if(i < 6) return (
                     <li key={itemAtual.id}>
-                      <a href={itemAtual.link} target="_blank" >
-                        <img src={itemAtual.image || `https://picsum.photos/300/300`} />
+                      <a href={`Comunnities${itemAtual.id}`} >
+                        <img src={itemAtual.imageUrl || `https://picsum.photos/300/300`} />
                         <span>{itemAtual.title}</span>
                       </a>
                     </li>
