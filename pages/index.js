@@ -1,6 +1,8 @@
 import React from 'react';
 import MainGrid from '../src/components/MainGrid/'
 import Box from '../src/components/Box';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 import { communities } from '../src/components/Comunidades';
 import {AlurakutMenu, AlurakutProfileSidebarMenuDefault , OrkutNostalgicIconSet} from '../src/lib/alurakutCommons'
 import {ProfileRelationsBoxWrapper} from '../src/components/profileRelations';
@@ -47,9 +49,10 @@ function ProfileRelationsBox(prop) {
 
 
 
-export default function Home() {
-  const usuarioAleatorio = "Gui-guimaraes";
+export default function Home(props) {
+  const usuarioAleatorio = props.githubUser;
   const [comunidades, setComunidades] = React.useState([]);
+  const [createPub, setCreatePub] = React.useState('');
   const pessoasFavoritas = [
     'juunegreiros',
     'omariosouto',
@@ -116,8 +119,8 @@ export default function Home() {
           </div>
           <div className="welcomeArea" style={{gridArea: 'welcomeArea'}}>
             <Box>
-              <form onSubmit={function handleCreateCommunity(e) {
-                e.preventDefault(e)
+              <form onSubmit={function handleCreatePub(e) {
+                e.preventDefault();
 
 
               }}>
@@ -128,6 +131,10 @@ export default function Home() {
                 <div>
                 <input 
                 placeholder="Começar Publicação"
+                value={createPub}
+                onChange={(event) => {
+                  setCreatePub(event.target.value)
+                }}
                 name="Começar Publicação"
                 />
                  <button  style={{width: '100%', display: 'block', marginTop: '-8px', padding: '12px', background: '#F4F4F4', border: 0, color: '#333333'}}>
@@ -219,7 +226,7 @@ export default function Home() {
 
                   if(i < 6) return (
                     <li key={itemAtual.id}>
-                      <a href={`Comunnities${itemAtual.id}`} >
+                      <a href={`/communities/${itemAtual.link}`} >
                         <img src={itemAtual.imageUrl || `https://picsum.photos/300/300`} />
                         <span>{itemAtual.title}</span>
                       </a>
@@ -235,3 +242,27 @@ export default function Home() {
 }
 
 
+
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context);
+  const token = cookies.USER_TOKEN;
+  const { githubUser } = jwt.decode(token);
+
+  
+
+  if (!githubUser) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    }
+  }
+
+  return {
+    props: {
+      githubUser
+    }, // will be passed to the page component as props
+  }
+}
